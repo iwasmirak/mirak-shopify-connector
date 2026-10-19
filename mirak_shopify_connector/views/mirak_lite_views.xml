@@ -27,6 +27,21 @@
                         Markets prices, metafields and translations.<br/>
                         To get it, contact <strong>iwasmirak@gmail.com</strong> or
                         <strong>+974 66999180</strong> (WhatsApp). Your settings and data are kept when you upgrade.
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                            <a class="btn btn-success btn-sm" target="_blank"
+                               href="https://wa.me/97466999180?text=Hello%2C%20I%20would%20like%20to%20get%20the%20full%20version%20of%20Mirak%20Connector%20for%20Shopify%20%28Odoo%2019%29.">
+                                <i class="fa fa-whatsapp me-1"/> Ask for the full version on WhatsApp
+                            </a>
+                            <a class="btn btn-secondary btn-sm"
+                               href="mailto:iwasmirak@gmail.com?subject=Mirak%20Connector%20for%20Shopify%20-%20full%20version">
+                                <i class="fa fa-envelope me-1"/> Email us
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ms-auto text-center d-none d-md-block">
+                        <img src="/mirak_shopify_connector/static/description/qr_whatsapp.png" alt="WhatsApp QR code"
+                             style="width: 110px; height: 110px;" class="bg-white p-1 rounded"/>
+                        <div class="small text-muted">Scan to ask</div>
                     </div>
                 </div>
             </xpath>
