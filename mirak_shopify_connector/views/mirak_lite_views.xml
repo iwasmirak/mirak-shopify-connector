@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<!-- Lite edition: the options of the full version are replaced by a short presentation of it. -->
+<odoo>
+    <record id="mirak_shopify_store_view_form_lite" model="ir.ui.view">
+        <field name="name">mirak.shopify.store.form.lite</field>
+        <field name="model">mirak.shopify.store</field>
+        <field name="inherit_id" ref="mirak_shopify_store_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_register_webhooks']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_unregister_webhooks']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_view_payouts']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <div class="alert alert-info d-flex align-items-start gap-3" role="status">
+                    <i class="fa fa-star fa-2x text-warning mt-1"/>
+                    <div>
+                        <strong>Mirak Connector for Shopify — Lite edition (free)</strong><br/>
+                        The full version adds several stores, multi-location stock, real-time updates, invoices,
+                        payments and Shopify Payments payouts, returns, customers in both directions, abandoned
+                        checkouts, cancellations from Odoo, tags, product types, collections, compare-at and
+                        Markets prices, metafields and translations.<br/>
+                        To get it, contact <strong>iwasmirak@gmail.com</strong> or
+                        <strong>+974 66999180</strong> (WhatsApp). Your settings and data are kept when you upgrade.
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='webhook_base_url']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='webhook_secret']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='webhook_enabled']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='webhook_event_count']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Products -->
+            <xpath expr="//field[@name='compare_at_source']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='compare_at_pricelist_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+                <attribute name="required">0</attribute>
+            </xpath>
+            <xpath expr="//group[field[@name='sync_tags']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[field[@name='sync_translations']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_fetch_price_lists']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='price_list_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='metafield_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='price_list_ids']/preceding-sibling::separator[1]" position="replace">
+                <div class="alert alert-light border mt-3" role="status">
+                    <i class="fa fa-lock me-1"/> <strong>Full version:</strong> tags, product types and collections,
+                    compare-at prices, Shopify Markets price lists, metafields and translations.
+                    Contact iwasmirak@gmail.com or +974 66999180.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='metafield_ids']/preceding-sibling::separator[1]" position="replace"/>
+
+            <!-- Stock -->
+            <xpath expr="//field[@name='main_extra_warehouse_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='stock']/group" position="after">
+                <div class="alert alert-light border" role="status">
+                    <i class="fa fa-lock me-1"/> <strong>Full version:</strong> several Shopify locations, each with
+                    its own Odoo warehouse, and several warehouses published at one location.
+                    Contact iwasmirak@gmail.com or +974 66999180.
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='locations']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Orders -->
+            <xpath expr="//group[field[@name='cancel_in_shopify']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[field[@name='import_customers']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[field[@name='import_returns']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='import_abandoned_checkouts']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='checkout_team_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='orders']/group" position="after">
+                <div class="alert alert-light border" role="status">
+                    <i class="fa fa-lock me-1"/> <strong>Full version:</strong> cancellations from Odoo, returns in
+                    both directions, Shopify customers in both directions and abandoned checkouts in CRM.
+                    Contact iwasmirak@gmail.com or +974 66999180.
+                </div>
+            </xpath>
+
+            <!-- Invoicing -->
+            <xpath expr="//page[@name='invoicing']" position="replace">
+                <page string="Invoicing" name="invoicing">
+                    <div class="alert alert-light border text-wrap" role="status" style="white-space: normal;">
+                        <i class="fa fa-lock me-1"/> <strong>Full version:</strong> invoices created when the order is
+                        imported, paid or delivered, Shopify payments registered per payment method, refunds as credit
+                        notes, sales / shipping / refund accounts, and Shopify Payments payouts with their fees and
+                        automatic reconciliation.<br/>
+                        Contact iwasmirak@gmail.com or +974 66999180.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,192 @@
+// Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html)
+// Neutrals follow Odoo's Bootstrap variables (light and dark themes); brand and status colors are fixed.
+
+// Odoo hides the overflow of client actions ("html .o_web_client > .o_action_manager > .o_action"):
+// the dashboard scrolls itself (selector one class more specific than Odoo's).
+html .o_web_client > .o_action_manager > .o_action.o_mirak_dashboard {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.o_mirak_dashboard {
+    --mk-page: var(--bs-tertiary-bg, #f5f6f8);
+    --mk-surface: var(--bs-body-bg, #ffffff);
+    --mk-surface-2: var(--bs-secondary-bg, #f8f9fb);
+    --mk-ink: var(--bs-body-color, #111827);
+    --mk-ink-2: var(--bs-secondary-color, #4b5563);
+    --mk-muted: #8a8f98;
+    --mk-hair: var(--bs-border-color, #e6e8ec);
+    --mk-grid: color-mix(in srgb, var(--mk-hair) 60%, transparent);
+    --mk-accent: #059669;
+    --mk-series: #1baf7a;
+    --mk-good: #0ca30c;
+    --mk-warning: #fab219;
+    --mk-serious: #ec835a;
+    --mk-critical: #d03b3b;
+    --mk-info: #2a78d6;
+    --mk-good-text: #0a7a0a;
+    --mk-warn-text: #8a5a00;
+
+    height: 100%;
+    background: var(--mk-page);
+    color: var(--mk-ink);
+    font-size: 14px;
+
+    .o_mirak_wrap { max-width: 1320px; margin: 0 auto; padding: 20px 16px 40px; }
+    h1 { font-size: 21px; margin: 0; font-weight: 700; letter-spacing: -.01em; }
+    h2 { font-size: 14px; margin: 0; font-weight: 600; }
+
+    // Logo (bag in a navy tile)
+    .o_mirak_logo {
+        width: 44px; height: 44px; border-radius: 11px; background: #0f1b33; position: relative; flex: none;
+        &::before { content: ""; position: absolute; left: 11px; top: 15px; width: 22px; height: 20px;
+                    background: linear-gradient(#34d399, #047857); border-radius: 3px 3px 4px 4px; }
+        &::after { content: ""; position: absolute; left: 16px; top: 7px; width: 12px; height: 12px;
+                   border: 3px solid #a7f3d0; border-bottom: 0; border-radius: 9px 9px 0 0; }
+    }
+
+    .o_mirak_head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; justify-content: space-between; }
+    .o_mirak_title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .o_mirak_store { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .o_mirak_select { border: 1px solid var(--mk-hair); background: var(--mk-surface); color: var(--mk-ink);
+                      border-radius: 7px; padding: 3px 8px; font-size: 13px; max-width: 360px; }
+    .o_mirak_chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 2px 9px; white-space: nowrap;
+                    border-radius: 999px; border: 1px solid var(--mk-hair); background: var(--mk-surface); color: var(--mk-ink-2); }
+    .o_mirak_dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+        &.good { background: var(--mk-good); } &.crit { background: var(--mk-critical); } &.info { background: var(--mk-info); } }
+    .o_mirak_actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .o_mirak_btn_primary { background: var(--mk-accent); border-color: var(--mk-accent); color: #fff;
+        &:hover, &:focus { background: #047857; border-color: #047857; color: #fff; } }
+
+    .o_mirak_subbar { margin: 14px 0 18px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;
+                      align-items: center; color: var(--mk-ink-2); font-size: 13px; }
+    .o_mirak_seg { display: inline-flex; border: 1px solid var(--mk-hair); border-radius: 8px; overflow: hidden; background: var(--mk-surface);
+        button { border: 0; background: none; padding: 5px 12px; font-size: 13px; color: var(--mk-ink-2); }
+        button + button { border-left: 1px solid var(--mk-hair); }
+        button.on { background: color-mix(in srgb, var(--mk-accent) 14%, transparent); color: var(--mk-ink); font-weight: 600; } }
+
+    // Layout
+    .o_mirak_grid { display: grid; gap: 16px; }
+    .o_mirak_kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .o_mirak_row2 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); margin-top: 16px; }
+    .o_mirak_row3 { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); margin-top: 16px; }
+    .o_mirak_row4 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: 16px; }
+    @media (max-width: 1100px) { .o_mirak_kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                                 .o_mirak_row2, .o_mirak_row3 { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 720px) { .o_mirak_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                                .o_mirak_row4 { grid-template-columns: minmax(0, 1fr); } }
+
+    .o_mirak_card { background: var(--mk-surface); border: 1px solid var(--mk-hair); border-radius: 12px; min-width: 0;
+                    box-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+        > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px 0; } }
+    .o_mirak_flex { display: flex; flex-direction: column; flex: 1; }
+    .o_mirak_body { padding: 12px 16px 16px; }
+    .o_mirak_link { font-size: 12.5px; color: var(--mk-accent); font-weight: 500; white-space: nowrap; }
+    .o_mirak_clickable { cursor: pointer; }
+
+    // KPIs
+    .o_mirak_kpi { padding: 15px 16px;
+        &.o_mirak_clickable:hover { border-color: color-mix(in srgb, var(--mk-accent) 40%, var(--mk-hair)); } }
+    .o_mirak_kpi_alert { border-color: color-mix(in srgb, var(--mk-critical) 35%, var(--mk-hair)); }
+    .o_mirak_label { font-size: 12.5px; color: var(--mk-ink-2); display: flex; justify-content: space-between; gap: 6px; }
+    .o_mirak_value { font-size: 26px; font-weight: 700; margin-top: 6px; letter-spacing: -.01em; white-space: nowrap;
+        small { font-size: 14px; font-weight: 600; color: var(--mk-ink-2); } }
+    .o_mirak_meta { font-size: 12.5px; color: var(--mk-ink-2); margin-top: 4px; }
+    .o_mirak_delta { font-weight: 600; &.up { color: var(--mk-good-text); } &.down { color: var(--mk-critical); } }
+    .o_mirak_progress { height: 6px; border-radius: 3px; background: var(--mk-grid); margin-top: 10px; overflow: hidden;
+        i { display: block; height: 100%; border-radius: 3px; &.good { background: var(--mk-good); } &.warn { background: var(--mk-warning); } } }
+
+    // Revenue chart
+    .o_mirak_headline { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .o_mirak_big { font-size: 22px; font-weight: 700; }
+    .o_mirak_chart { display: flex; gap: 8px; flex: 1; min-height: 230px; }
+    .o_mirak_yaxis { display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 20px;
+                     font-size: 11px; color: var(--mk-muted); text-align: right; min-width: 32px;
+        span { line-height: 1; transform: translateY(-50%); } span:last-child { transform: translateY(50%); } }
+    .o_mirak_plot { position: relative; flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .o_mirak_gridlines { position: absolute; inset: 0 0 20px 0; display: flex; flex-direction: column; justify-content: space-between;
+        i { border-top: 1px solid var(--mk-grid); } i:last-child { border-top-color: var(--mk-hair); } }
+    .o_mirak_bars { position: relative; flex: 1; display: flex; align-items: flex-end; gap: 2px; }
+    .o_mirak_barcol { position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+    .o_mirak_barcol:hover { background: color-mix(in srgb, var(--mk-ink) 4%, transparent); border-radius: 4px 4px 0 0; }
+    .o_mirak_bar { display: block; width: 100%; max-width: 28px; min-height: 2px; background: var(--mk-series); border-radius: 4px 4px 0 0; }
+    .o_mirak_tip { position: absolute; left: 50%; transform: translate(-50%, -8px); z-index: 2; pointer-events: none; white-space: nowrap;
+                   background: var(--mk-ink); color: var(--mk-surface); font-size: 12px; padding: 6px 9px; border-radius: 7px;
+        b { display: block; font-size: 13px; } }
+    .o_mirak_xaxis { position: relative; display: flex; gap: 2px; height: 20px; font-size: 11px; color: var(--mk-muted);
+        span { flex: 1; white-space: nowrap; overflow: visible; padding-top: 4px; }
+        em { position: absolute; right: 0; top: 4px; font-style: normal; } }
+
+    // Sync health
+    .o_mirak_steps { list-style: none; margin: 0; padding: 0;
+        li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+             padding: 9px 0; border-bottom: 1px solid var(--mk-grid); }
+        li:last-child { border-bottom: 0; } }
+    .o_mirak_name { font-weight: 500; }
+    .o_mirak_sub { font-size: 12px; color: var(--mk-ink-2); }
+    .o_mirak_when { font-size: 12px; color: var(--mk-muted); white-space: nowrap; }
+    .o_mirak_ico { width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center;
+                   font-size: 12px; font-weight: 700; color: #fff; flex: none;
+        &.good { background: var(--mk-good); } &.warning { background: var(--mk-warning); color: #3a2a00; }
+        &.serious { background: var(--mk-serious); } &.critical { background: var(--mk-critical); }
+        &.info { background: var(--mk-info); } &.off { background: var(--mk-grid); color: var(--mk-ink-2); } }
+    .o_mirak_runs { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; margin-top: 12px;
+        i { height: 22px; border-radius: 3px; background: var(--mk-good);
+            &.warning { background: var(--mk-warning); } &.critical { background: var(--mk-critical); } } }
+    .o_mirak_runs_legend { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 11.5px;
+                           color: var(--mk-muted); margin-top: 6px;
+        .sq { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin: 0 3px 0 6px; vertical-align: -1px;
+              &.good { background: var(--mk-good); } &.warning { background: var(--mk-warning); } &.critical { background: var(--mk-critical); } } }
+
+    // Tables, tags
+    .o_mirak_table_wrap { overflow-x: auto; }
+    .o_mirak_table { width: 100%; border-collapse: collapse; font-size: 13px;
+        th { text-align: left; font-weight: 500; color: var(--mk-muted); font-size: 12px; padding: 8px 10px;
+             border-bottom: 1px solid var(--mk-hair); white-space: nowrap; }
+        td { padding: 9px 10px; border-bottom: 1px solid var(--mk-grid); white-space: nowrap; max-width: 200px; }
+        tr:last-child td { border-bottom: 0; }
+        tbody tr:hover td { background: var(--mk-surface-2); }
+        .num { text-align: right; font-variant-numeric: tabular-nums; } }
+    .o_mirak_tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 1px 8px; border-radius: 999px;
+                   font-weight: 500; white-space: nowrap;
+        &::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        &.good { background: color-mix(in srgb, var(--mk-good) 13%, transparent); color: var(--mk-good-text); }
+        &.warn { background: color-mix(in srgb, var(--mk-warning) 22%, transparent); color: var(--mk-warn-text); }
+        &.crit { background: color-mix(in srgb, var(--mk-critical) 12%, transparent); color: var(--mk-critical); }
+        &.info { background: color-mix(in srgb, var(--mk-info) 12%, transparent); color: var(--mk-info); }
+        &.off { background: var(--mk-grid); color: var(--mk-ink-2); } }
+
+    // Alerts
+    .o_mirak_alerts { display: flex; flex-direction: column; gap: 10px; }
+    .o_mirak_alert { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 11px 12px;
+                     border-radius: 10px; border: 1px solid var(--mk-hair);
+        b { display: block; font-size: 13px; }
+        p { margin: 2px 0 6px; font-size: 12.5px; color: var(--mk-ink-2); overflow-wrap: anywhere; }
+        a { font-size: 12.5px; color: var(--mk-accent); font-weight: 600; }
+        &.critical { background: color-mix(in srgb, var(--mk-critical) 9%, var(--mk-surface)); }
+        &.serious { background: color-mix(in srgb, var(--mk-serious) 12%, var(--mk-surface)); }
+        &.warning { background: color-mix(in srgb, var(--mk-warning) 14%, var(--mk-surface)); }
+        &.info { background: color-mix(in srgb, var(--mk-info) 9%, var(--mk-surface)); } }
+    .o_mirak_allgood { display: flex; align-items: center; gap: 10px; color: var(--mk-ink-2); }
+
+    // Stock & activity
+    .o_mirak_stock { display: grid; grid-template-columns: minmax(0, 1fr) 54px 60px 112px; gap: 8px; align-items: center;
+                     padding: 8px 0; border-bottom: 1px solid var(--mk-grid); font-size: 13px;
+        &.head { color: var(--mk-muted); font-size: 12px; padding-top: 0; }
+        &:last-child { border-bottom: 0; }
+        &.o_mirak_clickable:hover { background: var(--mk-surface-2); }
+        .n { text-align: right; font-variant-numeric: tabular-nums; } }
+    .o_mirak_ellip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .o_mirak_feed { list-style: none; margin: 0; padding: 0;
+        li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+             padding: 8px 0; border-bottom: 1px solid var(--mk-grid); font-size: 13px; }
+        li:last-child { border-bottom: 0; } }
+    .o_mirak_k { width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        &.info { background: var(--mk-good); } &.warning { background: var(--mk-warning); } &.error { background: var(--mk-critical); } }
+    .o_mirak_t { color: var(--mk-muted); font-size: 12px; white-space: nowrap; }
+    .o_mirak_none { color: var(--mk-muted); font-size: 13px; padding: 12px 0; }
+    .o_mirak_foot { margin-top: 22px; color: var(--mk-muted); font-size: 12px; display: flex; justify-content: space-between;
+                    flex-wrap: wrap; gap: 8px; }
+    .o_mirak_empty { max-width: 520px; margin: 80px auto; text-align: center;
+        .o_mirak_logo { margin: 0 auto 16px; } p { color: var(--mk-ink-2); margin: 10px 0 20px; } }
+}

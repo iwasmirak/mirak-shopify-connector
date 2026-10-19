@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<odoo>
+    <menuitem id="menu_mirak_shopify_root" name="Mirak Connector"
+              web_icon="mirak_shopify_connector,static/description/icon.png"
+              groups="stock.group_stock_user" sequence="80" action="action_mirak_dashboard"/>
+
+    <menuitem id="menu_mirak_shopify_dashboard" name="Dashboard" parent="menu_mirak_shopify_root"
+              action="action_mirak_dashboard" sequence="1"/>
+    <menuitem id="menu_mirak_shopify_stores" name="Stores" parent="menu_mirak_shopify_root"
+              action="mirak_shopify_store_action" sequence="10"/>
+    <menuitem id="menu_mirak_shopify_maps" name="Product Links" parent="menu_mirak_shopify_root"
+              action="mirak_shopify_product_map_action" sequence="20"/>
+    <menuitem id="menu_mirak_shopify_logs" name="Logs" parent="menu_mirak_shopify_root"
+              action="mirak_shopify_log_action" sequence="30"/>
+</odoo>

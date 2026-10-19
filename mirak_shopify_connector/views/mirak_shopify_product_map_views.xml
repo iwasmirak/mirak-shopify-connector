@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<odoo>
+    <record id="mirak_shopify_product_map_view_list" model="ir.ui.view">
+        <field name="name">mirak.shopify.product.map.list</field>
+        <field name="model">mirak.shopify.product.map</field>
+        <field name="arch" type="xml">
+            <list string="Shopify Product Links" create="0">
+                <field name="store_id" optional="hide"/>
+                <field name="product_id"/>
+                <field name="shopify_product_gid" optional="hide"/>
+                <field name="shopify_variant_gid" optional="show"/>
+                <field name="origin"/>
+                <field name="shopify_tracked"/>
+                <field name="last_qty"/>
+                <field name="last_stock_sync"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mirak_shopify_product_map_view_form" model="ir.ui.view">
+        <field name="name">mirak.shopify.product.map.form</field>
+        <field name="model">mirak.shopify.product.map</field>
+        <field name="arch" type="xml">
+            <form string="Shopify Product Link" create="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="store_id"/>
+                            <field name="product_id"/>
+                            <field name="origin"/>
+                        </group>
+                        <group>
+                            <field name="shopify_product_gid"/>
+                            <field name="shopify_variant_gid"/>
+                            <field name="inventory_item_gid"/>
+                            <field name="shopify_updated_at"/>
+                        </group>
+                        <group string="Stock">
+                            <field name="shopify_tracked"/>
+                            <field name="qty_initialized"/>
+                            <field name="last_qty"/>
+                            <field name="last_stock_sync"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mirak_shopify_product_map_view_search" model="ir.ui.view">
+        <field name="name">mirak.shopify.product.map.search</field>
+        <field name="model">mirak.shopify.product.map</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="shopify_variant_gid"/>
+                <filter name="not_tracked" string="Not Tracked in Shopify" domain="[('shopify_tracked', '=', False)]"/>
+                <filter name="group_origin" string="Origin" context="{'group_by': 'origin'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="mirak_shopify_product_map_action" model="ir.actions.act_window">
+        <field name="name">Shopify Product Links</field>
+        <field name="res_model">mirak.shopify.product.map</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

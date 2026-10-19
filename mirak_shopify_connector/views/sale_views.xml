@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<odoo>
+    <record id="view_order_form_mirak_shopify" model="ir.ui.view">
+        <field name="name">sale.order.form.mirak.shopify</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_information']" position="inside">
+                <group string="Shopify" name="mirak_shopify" invisible="not ms_order_gid">
+                    <group>
+                        <field name="ms_store_id"/>
+                        <field name="ms_order_name"/>
+                        <field name="ms_location_id" invisible="not ms_location_id"/>
+                        <field name="ms_cancel_pending" invisible="not ms_cancel_pending"/>
+                        <field name="ms_order_gid" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="ms_financial_status"/>
+                        <field name="ms_fulfillment_status"/>
+                        <field name="ms_gateway"/>
+                        <field name="ms_amount_received"/>
+                        <field name="ms_amount_refunded"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_search_mirak_shopify" model="ir.ui.view">
+        <field name="name">sale.order.search.mirak.shopify</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="ms_shopify_orders" string="Shopify Orders" domain="[('ms_order_gid', '!=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_partner_send_to_shopify" model="ir.actions.server">
+        <field name="name">Send to Shopify</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_ms_send_to_shopify()</field>
+    </record>
+
+    <record id="view_picking_form_mirak_shopify" model="ir.ui.view">
+        <field name="name">stock.picking.form.mirak.shopify</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="ms_fulfillment_gid" invisible="not ms_fulfillment_gid"/>
+                <field name="ms_fulfillment_error" invisible="not ms_fulfillment_error"
+                       decoration-danger="ms_fulfillment_error"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

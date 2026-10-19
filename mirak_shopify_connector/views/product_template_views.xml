@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<odoo>
+    <record id="product_template_form_view_mirak_shopify" model="ir.ui.view">
+        <field name="name">product.template.form.mirak.shopify</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Shopify" name="mirak_shopify" invisible="type != 'consu'">
+                    <group>
+                        <group>
+                            <field name="ms_sync"/>
+                            <field name="ms_pending_export" invisible="not ms_sync"/>
+                            <field name="ms_shopify_status" invisible="not ms_shopify_status"/>
+                        </group>
+                        <group>
+                            <button name="action_ms_push_now" type="object" string="Push to Shopify Now"
+                                    class="btn-secondary" invisible="not ms_sync or not id"
+                                    groups="stock.group_stock_manager"/>
+                        </group>
+                    </group>
+                    <field name="ms_map_ids" readonly="1">
+                        <list>
+                            <field name="product_id"/>
+                            <field name="shopify_variant_gid"/>
+                            <field name="shopify_tracked"/>
+                            <field name="last_qty"/>
+                            <field name="last_stock_sync"/>
+                        </list>
+                    </field>
+                </page>
+                <page string="Shopify Images" name="mirak_images" invisible="type != 'consu'">
+                    <div class="text-muted mb-2">
+                        The first image is the main product image. Images added, changed, reordered or deleted
+                        here are synchronized with Shopify (and the other way round).
+                    </div>
+                    <field name="ms_image_ids" mode="kanban" context="{'default_product_tmpl_id': id}">
+                        <kanban default_order="sequence, id">
+                            <field name="sequence"/>
+                            <templates>
+                                <t t-name="card" class="p-2 text-center">
+                                    <field name="image_1920" widget="image" options="{'size': [150, 150]}"/>
+                                    <field name="name" class="small text-truncate"/>
+                                    <field name="product_id" class="small text-muted"/>
+                                </t>
+                            </templates>
+                        </kanban>
+                        <form string="Shopify Image">
+                            <group>
+                                <group>
+                                    <field name="image_1920" widget="image" options="{'preview_image': 'image_512'}"/>
+                                </group>
+                                <group>
+                                    <field name="name"/>
+                                    <field name="sequence" string="Position"/>
+                                    <field name="product_id"/>
+                                    <field name="product_tmpl_id" invisible="1"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_search_view_mirak_shopify" model="ir.ui.view">
+        <field name="name">product.template.search.mirak.shopify</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='filter_to_sell']" position="after">
+                <filter name="ms_synced" string="Synced with Shopify" domain="[('ms_sync', '=', True)]"/>
+                <filter name="ms_not_synced" string="Not Synced with Shopify"
+                        domain="[('ms_sync', '=', False), ('type', '=', 'consu')]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

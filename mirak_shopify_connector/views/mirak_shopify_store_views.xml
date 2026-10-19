@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<odoo>
+    <record id="mirak_shopify_store_view_form" model="ir.ui.view">
+        <field name="name">mirak.shopify.store.form</field>
+        <field name="model">mirak.shopify.store</field>
+        <field name="arch" type="xml">
+            <form string="Shopify Store">
+                <header>
+                    <button name="action_oauth_connect" type="object" string="Connect with Shopify"
+                            class="oe_highlight" invisible="auth_method != 'oauth' or state == 'connected'"/>
+                    <button name="action_test_connection" type="object" string="Test Connection"
+                            class="oe_highlight" invisible="state == 'connected' or auth_method == 'oauth'"/>
+                    <button name="action_test_connection" type="object" string="Test Connection"
+                            invisible="state != 'connected'"/>
+                    <button name="action_sync_now" type="object" string="Sync Now"
+                            class="oe_highlight" invisible="state != 'connected'"/>
+                    <button name="action_fetch_locations" type="object" string="Refresh Locations"
+                            invisible="state != 'connected'"/>
+                    <button name="action_resend_all" type="object" string="Resend All Products"
+                            invisible="state != 'connected'"
+                            confirm="Send again the data of every linked product to Shopify?"/>
+                    <button name="action_register_webhooks" type="object" string="Activate Real-time Updates"
+                            invisible="state != 'connected' or webhook_enabled"/>
+                    <button name="action_unregister_webhooks" type="object" string="Deactivate Real-time Updates"
+                            invisible="not webhook_enabled"/>
+                    <button name="action_disconnect" type="object" string="Disconnect Store"
+                            invisible="map_count == 0 and state != 'connected'"
+                            confirm="All product links of this store will be removed (no product is deleted in Odoo or Shopify). Continue?"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_maps" type="object" class="oe_stat_button" icon="fa-link">
+                            <field name="map_count" widget="statinfo" string="Linked Variants"/>
+                        </button>
+                        <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-shopping-cart">
+                            <field name="order_count" widget="statinfo" string="Orders"/>
+                        </button>
+                        <button name="action_view_logs" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="error_count" widget="statinfo" string="Errors (24h)"/>
+                        </button>
+                        <button name="action_view_payouts" type="object" class="oe_stat_button" icon="fa-university"
+                                invisible="not import_payouts">
+                            <span class="o_stat_text">Payouts</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. My Shopify Store"/></h1>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="license_valid">
+                        <field name="license_status" readonly="1"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not license_valid or not license_expiring">
+                        Your license expires in <field name="license_days_left" readonly="1" class="d-inline"/> day(s):
+                        synchronization stops on that date. To renew it, contact
+                        <field name="ms_contact" readonly="1" class="d-inline"/>.
+                    </div>
+                    <field name="license_expiring" invisible="1"/>
+                    <field name="ms_is_lite" invisible="1"/>
+                    <group>
+                        <group string="Connection">
+                            <field name="shop_domain" placeholder="your-store.myshopify.com"/>
+                            <field name="auth_method" widget="radio"/>
+                            <field name="client_id" invisible="auth_method not in ('client_credentials', 'oauth')"
+                                   required="auth_method in ('client_credentials', 'oauth')"/>
+                            <field name="client_secret" password="True" invisible="auth_method not in ('client_credentials', 'oauth')"
+                                   required="auth_method in ('client_credentials', 'oauth')"/>
+                            <field name="token_expires_at" invisible="auth_method != 'client_credentials' or not token_expires_at"/>
+                            <field name="access_token" password="True" invisible="auth_method != 'token'"/>
+                            <field name="api_version"/>
+                            <field name="license_key" placeholder="MIRAK1...." invisible="not license_required"/>
+                            <field name="license_status" string="License" invisible="not license_valid or not license_required"
+                                   decoration-success="license_valid"/>
+                            <field name="license_valid" invisible="1"/>
+                            <field name="license_required" invisible="1"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Automatic Synchronization">
+                            <field name="auto_sync"/>
+                            <field name="sync_interval" invisible="not auto_sync"/>
+                            <field name="last_sync"/>
+                            <field name="last_product_pull"/>
+                            <field name="webhook_base_url" placeholder="https://odoo.example.com"/>
+                            <field name="webhook_secret" password="True" invisible="not webhook_base_url"/>
+                            <field name="webhook_enabled"/>
+                            <field name="webhook_event_count" string="Notifications (24h)" invisible="not webhook_enabled"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products" name="products">
+                            <group>
+                                <group string="Directions">
+                                    <field name="product_odoo_to_shopify"/>
+                                    <field name="product_shopify_to_odoo"/>
+                                </group>
+                                <group string="Synchronized Data">
+                                    <field name="sync_name"/>
+                                    <field name="sync_description"/>
+                                    <field name="sync_price"/>
+                                    <field name="sync_sku_barcode"/>
+                                    <field name="sync_status"/>
+                                    <field name="sync_images"/>
+                                </group>
+                                <group string="New Odoo Products">
+                                    <field name="export_policy"/>
+                                    <field name="export_categ_ids" widget="many2many_tags"
+                                           invisible="export_policy != 'categories'"
+                                           required="export_policy == 'categories'"/>
+                                    <field name="export_status"/>
+                                </group>
+                                <group string="Price and Conflicts">
+                                    <field name="price_source"/>
+                                    <field name="shop_currency_id" invisible="not shop_currency_id"/>
+                                    <field name="pricelist_id" invisible="price_source != 'pricelist'"
+                                           required="price_source == 'pricelist'"/>
+                                    <field name="compare_at_source"/>
+                                    <field name="compare_at_pricelist_id" invisible="compare_at_source != 'pricelist'"
+                                           required="compare_at_source == 'pricelist'"/>
+                                    <field name="conflict_policy"/>
+                                </group>
+                                <group string="Tags, Types and Collections">
+                                    <field name="sync_tags"/>
+                                    <field name="category_sync"/>
+                                    <field name="shopify_categ_parent_id" invisible="category_sync != 'both'"/>
+                                    <field name="category_collections"/>
+                                </group>
+                            </group>
+                            <div class="text-muted">
+                                Products created in either platform are always sent complete; the
+                                "Synchronized Data" options apply to later updates, in both directions.
+                            </div>
+                            <group>
+                                <group string="Translations">
+                                    <field name="sync_translations"/>
+                                    <button name="action_import_translations" type="object" string="Import translations from Shopify"
+                                            icon="fa-language" class="btn-link" invisible="not sync_translations"/>
+                                </group>
+                            </group>
+                            <separator string="Shopify Markets Prices"/>
+                            <button name="action_fetch_price_lists" type="object" string="Fetch Shopify Price Lists"
+                                    class="btn-secondary" invisible="state != 'connected'"/>
+                            <field name="price_list_ids">
+                                <list create="0" editable="bottom">
+                                    <field name="name" readonly="1"/>
+                                    <field name="catalog" readonly="1"/>
+                                    <field name="currency" readonly="1"/>
+                                    <field name="pricelist_id"/>
+                                </list>
+                            </field>
+                            <separator string="Metafields"/>
+                            <field name="metafield_ids">
+                                <list editable="bottom">
+                                    <field name="field_id" options="{'no_create': True}"/>
+                                    <field name="namespace"/>
+                                    <field name="key"/>
+                                    <field name="metafield_type"/>
+                                    <field name="direction"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Stock" name="stock">
+                            <group>
+                                <group string="Directions">
+                                    <field name="stock_odoo_to_shopify"/>
+                                    <field name="stock_shopify_to_odoo"/>
+                                </group>
+                                <group string="Locations">
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                    <field name="warehouse_id"/>
+                                    <field name="location_id" options="{'no_create': True}"/>
+                                    <field name="main_extra_warehouse_ids" widget="many2many_tags" invisible="not location_id"/>
+                                </group>
+                                <group string="Quantity Sent to Shopify">
+                                    <field name="stock_qty_type"/>
+                                    <field name="stock_percent"/>
+                                    <field name="stock_buffer"/>
+                                    <field name="initial_stock_source"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Orders" name="orders">
+                            <group>
+                                <group string="Import">
+                                    <field name="import_orders"/>
+                                    <field name="order_import_from" invisible="not import_orders"/>
+                                    <field name="order_status_filter" invisible="not import_orders"/>
+                                    <field name="cancel_orders" invisible="not import_orders"/>
+                                    <field name="last_order_pull" invisible="not import_orders"/>
+                                </group>
+                                <group string="Cancelled in Odoo" invisible="not import_orders">
+                                    <field name="cancel_in_shopify"/>
+                                    <field name="cancel_restock" invisible="not cancel_in_shopify"/>
+                                    <field name="cancel_refund" invisible="not cancel_in_shopify"/>
+                                    <field name="cancel_notify" invisible="not cancel_in_shopify"/>
+                                </group>
+                                <group string="Customers">
+                                    <field name="import_customers"/>
+                                    <field name="last_customer_pull" invisible="not import_customers"/>
+                                </group>
+                                <group string="Returns" invisible="not import_orders">
+                                    <field name="import_returns"/>
+                                    <field name="returns_to_shopify"/>
+                                </group>
+                                <group string="Point of Sale and Checkouts">
+                                    <field name="pos_orders" invisible="not import_orders"/>
+                                    <field name="import_abandoned_checkouts"/>
+                                    <field name="checkout_team_id" invisible="not import_abandoned_checkouts"/>
+                                </group>
+                                <group string="Sales Orders" invisible="not import_orders">
+                                    <field name="order_tax_mode"/>
+                                    <field name="order_team_id"/>
+                                    <field name="order_user_id"/>
+                                    <field name="shipping_product_id"/>
+                                    <field name="custom_item_product_id"/>
+                                </group>
+                                <group string="Shipping" invisible="not import_orders">
+                                    <field name="fulfillment_mode"/>
+                                    <field name="fulfillment_notify_customer" invisible="fulfillment_mode != 'odoo'"/>
+                                </group>
+                            </group>
+                            <div class="text-muted" invisible="not import_orders">
+                                Imported orders are confirmed in Odoo with Shopify's prices; their deliveries come from
+                                the store warehouse. The Shopify location should be the location that fulfills the orders.
+                            </div>
+                        </page>
+                        <page string="Invoicing" name="invoicing" invisible="not import_orders">
+                            <group>
+                                <group string="Invoices">
+                                    <field name="invoice_trigger"/>
+                                    <field name="invoice_send_email" invisible="invoice_trigger == 'none'"/>
+                                    <field name="refund_credit_notes" invisible="invoice_trigger == 'none'"/>
+                                </group>
+                                <group string="Accounts" invisible="invoice_trigger == 'none'">
+                                    <field name="income_account_id"/>
+                                    <field name="shipping_account_id"/>
+                                    <field name="refund_account_id" invisible="not refund_credit_notes"/>
+                                </group>
+                                <group string="Payments" invisible="invoice_trigger == 'none'">
+                                    <field name="register_payments"/>
+                                    <field name="payment_journal_id" invisible="not register_payments"/>
+                                </group>
+                                <group string="Shopify Payments Payouts" invisible="invoice_trigger == 'none'">
+                                    <field name="import_payouts"/>
+                                    <field name="payout_journal_id" invisible="not import_payouts" required="import_payouts"/>
+                                    <field name="payout_fee_account_id" invisible="not import_payouts" required="import_payouts"/>
+                                    <field name="payout_clearing_account_id" invisible="not import_payouts"/>
+                                    <field name="payout_import_from" invisible="not import_payouts"/>
+                                </group>
+                            </group>
+                            <field name="gateway_journal_ids" invisible="invoice_trigger == 'none' or not register_payments">
+                                <list editable="bottom">
+                                    <field name="gateway"/>
+                                    <field name="journal_id"/>
+                                </list>
+                            </field>
+                            <div class="text-muted" invisible="invoice_trigger == 'none'">
+                                Amounts paid in Shopify are registered on the invoices in the journal of their payment
+                                method (the default journal otherwise). Each Shopify refund becomes a credit note.
+                            </div>
+                        </page>
+                        <page string="Logs" name="logs_settings">
+                            <group>
+                                <group>
+                                    <field name="log_retention_days"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Shopify Locations" name="locations">
+                            <field name="location_ids">
+                                <list create="0" delete="0" editable="bottom">
+                                    <field name="name" readonly="1"/>
+                                    <field name="shopify_active" readonly="1"/>
+                                    <field name="is_main"/>
+                                    <field name="sync_stock" invisible="is_main"/>
+                                    <field name="warehouse_id" invisible="is_main" required="sync_stock and not is_main"/>
+                                    <field name="extra_warehouse_ids" widget="many2many_tags" invisible="is_main"/>
+                                    <field name="gid" optional="hide" readonly="1"/>
+                                </list>
+                            </field>
+                            <div class="text-muted">
+                                The main location (Stock tab) is synchronized with the store warehouse. Tick other
+                                locations to synchronize them with their own warehouse: orders fulfilled from a location
+                                are delivered from its warehouse.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mirak_shopify_store_view_list" model="ir.ui.view">
+        <field name="name">mirak.shopify.store.list</field>
+        <field name="model">mirak.shopify.store</field>
+        <field name="arch" type="xml">
+            <list string="Shopify Stores">
+                <field name="name"/>
+                <field name="shop_domain"/>
+                <field name="warehouse_id"/>
+                <field name="location_id"/>
+                <field name="last_sync"/>
+                <field name="state" widget="badge" decoration-success="state == 'connected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mirak_shopify_store_action" model="ir.actions.act_window">
+        <field name="name">Shopify Stores</field>
+        <field name="res_model">mirak.shopify.store</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

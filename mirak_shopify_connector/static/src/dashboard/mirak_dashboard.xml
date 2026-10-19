@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Bouchibane Karim. License OPL-1 (https://www.odoo.com/documentation/19.0/legal/licenses.html) -->
+<templates xml:space="preserve">
+<t t-name="mirak_shopify_connector.Dashboard">
+<div class="o_action o_mirak_dashboard">
+<div class="o_mirak_wrap" t-if="state.data">
+
+    <!-- No store yet -->
+    <t t-if="!state.data.store">
+        <div class="o_mirak_empty">
+            <div class="o_mirak_logo"/>
+            <h1>Mirak Connector for Shopify</h1>
+            <p>Connect your first Shopify store to start synchronizing products, stock and orders.</p>
+            <button class="btn btn-primary o_mirak_btn_primary" t-on-click="newStore">Connect a Shopify store</button>
+        </div>
+    </t>
+
+    <t t-else="">
+    <t t-set="s" t-value="state.data.store"/>
+    <t t-set="k" t-value="state.data.kpis"/>
+    <t t-set="cur" t-value="state.data.currency"/>
+
+    <!-- Header -->
+    <div class="o_mirak_head">
+        <div class="o_mirak_title">
+            <div class="o_mirak_logo"/>
+            <div class="o_mirak_title_text">
+                <h1>Mirak Connector</h1>
+                <div class="o_mirak_store">
+                    <select class="o_mirak_select" t-on-change="setStore" aria-label="Store">
+                        <t t-foreach="state.data.stores" t-as="st" t-key="st.id">
+                            <option t-att-value="st.id" t-att-selected="st.id === s.id"><t t-esc="st.name"/> · <t t-esc="st.domain"/></option>
+                        </t>
+                    </select>
+                    <span class="o_mirak_chip">
+                        <span t-attf-class="o_mirak_dot {{ s.connected ? 'good' : 'crit' }}"/>
+                        <t t-esc="s.connected ? 'Connected' : 'Not connected'"/>
+                    </span>
+                    <span class="o_mirak_chip" t-if="s.license_required" t-att-title="s.license_status">
+                        <span t-attf-class="o_mirak_dot {{ s.license_valid ? 'good' : 'crit' }}"/>
+                        <t t-esc="s.license_valid ? 'License valid' : 'License not valid'"/>
+                    </span>
+                    <span class="o_mirak_chip" t-if="s.auth_method === 'client_credentials' and s.token_expires_at">
+                        <span class="o_mirak_dot info"/>Token renews <t t-esc="until(s.token_expires_at)"/>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="o_mirak_actions">
+            <button class="btn o_mirak_btn_primary" t-on-click="syncNow" t-att-disabled="state.syncing or !s.connected">
+                <i t-attf-class="fa fa-refresh {{ state.syncing ? 'fa-spin' : '' }}"/>
+                <t t-esc="state.syncing ? ' Syncing…' : ' Sync now'"/>
+            </button>
+            <button class="btn btn-secondary" t-on-click="openStore">Store settings</button>
+            <button class="btn btn-secondary" t-on-click="openLogs">Logs</button>
+        </div>
+    </div>
+
+    <div class="o_mirak_subbar">
+        <div>
+            Last sync <b t-esc="ago(s.last_sync)"/>
+            <t t-if="s.auto_sync and s.next_sync"> · next <t t-esc="until(s.next_sync)"/> · automatic every <t t-esc="s.interval"/> min</t>
+            <t t-if="!s.auto_sync"> · automatic synchronization off</t>
+            <t t-if="s.location"> · <b t-esc="s.location"/> ↔ <b t-esc="s.warehouse"/></t>
+        </div>
+        <div class="o_mirak_seg" role="tablist">
+            <t t-foreach="periods" t-as="p" t-key="p[0]">
+                <button t-att-class="state.period === p[0] ? 'on' : ''" t-on-click="() => this.setPeriod(p[0])" t-esc="p[1]"/>
+            </t>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="o_mirak_grid o_mirak_kpis">
+        <div class="o_mirak_card o_mirak_kpi">
+            <div class="o_mirak_label">Shopify revenue</div>
+            <div class="o_mirak_value"><t t-esc="money(k.revenue)"/> <small t-esc="cur"/></div>
+            <div class="o_mirak_meta">
+                <t t-if="k.revenue_delta !== null">
+                    <span t-attf-class="o_mirak_delta {{ k.revenue_delta >= 0 ? 'up' : 'down' }}">
+                        <t t-esc="k.revenue_delta >= 0 ? '▲' : '▼'"/> <t t-esc="Math.abs(Math.round(k.revenue_delta))"/>%
+                    </span> vs previous period
+                </t>
+                <t t-else="">orders not cancelled</t>
+            </div>
+        </div>
+        <div class="o_mirak_card o_mirak_kpi o_mirak_clickable" t-on-click="() => this.openOrders()">
+            <div class="o_mirak_label">Orders imported</div>
+            <div class="o_mirak_value" t-esc="k.orders"/>
+            <div class="o_mirak_meta"><t t-esc="k.orders_fulfilled"/> fulfilled · <t t-esc="k.orders_to_ship"/> to ship · <t t-esc="k.orders_cancelled"/> cancelled</div>
+        </div>
+        <div class="o_mirak_card o_mirak_kpi o_mirak_clickable" t-on-click="openProducts">
+            <div class="o_mirak_label">Products linked</div>
+            <div class="o_mirak_value" t-esc="k.products"/>
+            <div class="o_mirak_meta"><t t-esc="k.products_from_shopify"/> from Shopify · <t t-esc="k.products_from_odoo"/> from Odoo</div>
+        </div>
+        <div class="o_mirak_card o_mirak_kpi">
+            <div class="o_mirak_label">Stock in sync</div>
+            <div class="o_mirak_value"><t t-esc="stockPercent"/><small>%</small></div>
+            <div class="o_mirak_meta"><t t-esc="k.stock_matched"/> of <t t-esc="k.stock_total"/> tracked variants match</div>
+            <div class="o_mirak_progress"><i t-attf-class="{{ stockPercent === 100 ? 'good' : 'warn' }}" t-attf-style="width: {{ stockPercent }}%"/></div>
+        </div>
+        <div t-attf-class="o_mirak_card o_mirak_kpi {{ k.attention_critical ? 'o_mirak_kpi_alert' : '' }}">
+            <div class="o_mirak_label">Needs attention
+                <span t-if="k.attention_critical" class="o_mirak_tag crit"><t t-esc="k.attention_critical"/> critical</span>
+            </div>
+            <div class="o_mirak_value" t-esc="k.attention"/>
+            <div class="o_mirak_meta"><t t-esc="k.errors_24h"/> sync error(s) in the last 24 h</div>
+        </div>
+    </div>
+
+    <!-- Revenue + Sync health -->
+    <div class="o_mirak_grid o_mirak_row2">
+        <div class="o_mirak_card o_mirak_flex">
+            <header><h2>Revenue from Shopify orders</h2><a href="#" class="o_mirak_link" t-on-click.prevent="() => this.openOrders()">View orders →</a></header>
+            <t t-set="c" t-value="chart"/>
+            <div class="o_mirak_body o_mirak_flex">
+                <div class="o_mirak_headline">
+                    <span class="o_mirak_big"><t t-esc="money(c.total)"/> <t t-esc="cur"/></span>
+                    <span class="o_mirak_meta">daily totals of imported orders, cancelled excluded</span>
+                </div>
+                <div class="o_mirak_chart">
+                    <div class="o_mirak_yaxis">
+                        <t t-foreach="c.ticks" t-as="tick" t-key="tick_index"><span t-esc="short(tick)"/></t>
+                    </div>
+                    <div class="o_mirak_plot">
+                        <div class="o_mirak_gridlines"><i/><i/><i/><i/><i/></div>
+                        <div class="o_mirak_bars">
+                            <t t-foreach="c.bars" t-as="b" t-key="b.date">
+                                <div class="o_mirak_barcol" t-on-mouseenter="() => this.state.hover = b.index"
+                                     t-on-mouseleave="() => this.state.hover = null">
+                                    <i class="o_mirak_bar" t-if="b.amount > 0" t-attf-style="height: {{ b.height }}%"/>
+                                    <div class="o_mirak_tip" t-if="state.hover === b.index"
+                                         t-attf-style="bottom: {{ Math.min(b.height, 85) }}%">
+                                        <b><t t-esc="money(b.amount)"/> <t t-esc="cur"/></b><t t-esc="dayLabel(b.date)"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="o_mirak_xaxis">
+                            <t t-foreach="c.bars" t-as="b" t-key="b.date"><span t-esc="b.label"/></t>
+                            <em t-esc="c.lastLabel"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="o_mirak_card">
+            <header><h2>Sync health</h2><a href="#" class="o_mirak_link" t-on-click.prevent="openLogs">Logs →</a></header>
+            <div class="o_mirak_body">
+                <ul class="o_mirak_steps">
+                    <t t-foreach="state.data.steps" t-as="st" t-key="st.key">
+                        <li>
+                            <span t-attf-class="o_mirak_ico {{ st.status }}">
+                                <t t-if="st.status === 'good'">✓</t><t t-elif="st.status === 'off'">Ⅱ</t><t t-else="">!</t>
+                            </span>
+                            <div class="o_mirak_ellip"><div class="o_mirak_name" t-esc="st.label"/><div class="o_mirak_sub o_mirak_ellip" t-esc="st.message" t-att-title="st.message"/></div>
+                            <span class="o_mirak_when" t-esc="st.when ? ago(st.when) : '—'"/>
+                        </li>
+                    </t>
+                </ul>
+                <div class="o_mirak_runs">
+                    <t t-foreach="state.data.runs" t-as="run" t-key="run.hours_ago">
+                        <i t-att-class="run.status" t-att-title="runTitle(run)"/>
+                    </t>
+                </div>
+                <div class="o_mirak_runs_legend">
+                    <span>24 h ago</span>
+                    <span><i class="sq good"/>OK <i class="sq warning"/>Warnings <i class="sq critical"/>Errors</span>
+                    <span>now</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders + Attention -->
+    <div class="o_mirak_grid o_mirak_row3">
+        <div class="o_mirak_card">
+            <header><h2>Latest Shopify orders</h2><a href="#" class="o_mirak_link" t-on-click.prevent="() => this.openOrders()">All orders →</a></header>
+            <div class="o_mirak_body o_mirak_table_wrap">
+                <table class="o_mirak_table" t-if="state.data.orders.length">
+                    <thead><tr><th>Shopify</th><th>Odoo</th><th>Customer</th><th class="num">Total</th><th>Payment</th><th>Shipping</th><th>Invoice</th></tr></thead>
+                    <tbody>
+                        <t t-foreach="state.data.orders" t-as="o" t-key="o.id">
+                            <tr class="o_mirak_clickable" t-on-click="() => this.openRecord('sale.order', o.id)">
+                                <td><b t-esc="o.shopify"/></td>
+                                <td t-esc="o.name"/>
+                                <td class="o_mirak_ellip" t-esc="o.customer"/>
+                                <td class="num" t-esc="money(o.amount)"/>
+                                <t t-set="tp" t-value="paymentTag(o.payment)"/><td><span t-attf-class="o_mirak_tag {{ tp.cls }}" t-esc="tp.label"/></td>
+                                <t t-set="ts" t-value="shippingTag(o.shipping)"/><td><span t-attf-class="o_mirak_tag {{ ts.cls }}" t-esc="ts.label"/></td>
+                                <t t-set="ti" t-value="invoiceTag(o.invoice)"/><td><span t-attf-class="o_mirak_tag {{ ti.cls }}" t-esc="ti.label"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <div t-else="" class="o_mirak_none">No Shopify order imported yet.</div>
+            </div>
+        </div>
+        <div class="o_mirak_card">
+            <header><h2>Needs attention</h2><span class="o_mirak_chip" t-esc="state.data.alerts.length"/></header>
+            <div class="o_mirak_body o_mirak_alerts">
+                <t t-foreach="state.data.alerts" t-as="a" t-key="a_index">
+                    <div t-attf-class="o_mirak_alert {{ a.level }}">
+                        <span t-attf-class="o_mirak_ico {{ a.level }}"><t t-esc="a.level === 'info' ? 'i' : '!'"/></span>
+                        <div>
+                            <b t-esc="a.title"/>
+                            <p t-esc="a.text"/>
+                            <a href="#" t-if="a.action" t-on-click.prevent="() => this.alertAction(a)"><t t-esc="a.action.label"/> →</a>
+                        </div>
+                    </div>
+                </t>
+                <div t-if="!state.data.alerts.length" class="o_mirak_allgood">
+                    <span class="o_mirak_ico good">✓</span> Everything is running smoothly.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock watch + Activity -->
+    <div class="o_mirak_grid o_mirak_row4">
+        <div class="o_mirak_card">
+            <header><h2>Stock watch</h2><a href="#" class="o_mirak_link" t-on-click.prevent="openProducts">All linked products →</a></header>
+            <div class="o_mirak_body">
+                <div class="o_mirak_stock head"><span>Product</span><span class="n">Odoo</span><span class="n">Shopify</span><span>Status</span></div>
+                <t t-foreach="state.data.stock" t-as="row" t-key="row.product_id">
+                    <div class="o_mirak_stock o_mirak_clickable" t-on-click="() => this.openRecord('product.template', row.tmpl_id)">
+                        <span class="o_mirak_ellip" t-esc="row.name" t-att-title="row.name"/>
+                        <span class="n" t-esc="row.odoo"/>
+                        <span class="n" t-esc="row.shopify === null ? '—' : row.shopify"/>
+                        <t t-set="tk" t-value="stockTag(row.status)"/><span><span t-attf-class="o_mirak_tag {{ tk.cls }}" t-esc="tk.label"/></span>
+                    </div>
+                </t>
+                <div t-if="!state.data.stock.length" class="o_mirak_none">No linked product with stock yet.</div>
+            </div>
+        </div>
+        <div class="o_mirak_card">
+            <header><h2>Activity</h2><a href="#" class="o_mirak_link" t-on-click.prevent="openLogs">Logs →</a></header>
+            <div class="o_mirak_body">
+                <ul class="o_mirak_feed">
+                    <t t-foreach="state.data.activity" t-as="log" t-key="log.id">
+                        <li><i t-attf-class="o_mirak_k {{ log.level }}"/><span class="o_mirak_ellip" t-esc="log.message" t-att-title="log.message"/><span class="o_mirak_t" t-esc="time(log.date)"/></li>
+                    </t>
+                </ul>
+                <div t-if="!state.data.activity.length" class="o_mirak_none">No activity yet.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="o_mirak_foot">
+        <span>Mirak Connector for Shopify</span>
+        <span t-if="s.license_required" t-esc="s.license_status"/>
+    </div>
+    </t>
+</div>
+</div>
+</t>
+</templates>
